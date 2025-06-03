@@ -110,7 +110,6 @@ WesAI Code Assistant is a client-side web application that leverages the Google 
 
 ## Building for Production
 
-<<<<<<< HEAD
 1.  **Install Dependencies** (if not already done):
     ```bash
     npm install
@@ -151,6 +150,10 @@ Ensure `README.md` is in the `public` folder (Vite default) or configured to be 
 *   More advanced chat context retention and history management.
 *   VS Code Extension.
 *   Support for uploading files directly for review/refactor.
+
+## Repository
+
+*   GitHub: [https://github.com/johnwesleyquintero/wesai](https://github.com/johnwesleyquintero/wesai)
 
 ## Acknowledgements
 

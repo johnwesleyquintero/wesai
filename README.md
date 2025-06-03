@@ -5,6 +5,8 @@
 
 WesAI Code Assistant is a client-side web application that leverages the Google Gemini API (for text-based tasks) and Imagen API (for image generation) to provide intelligent code analysis, refactoring suggestions, component explanations, code generation, general content creation, image generation, and an interactive chat mode, with a special focus on TypeScript and React development.
 
+![image](https://github.com/user-attachments/assets/6b4d87ba-6147-42e0-90d1-46b22ec29edd)
+
 **Note:** You can also view this documentation directly within the WesAI application under the "Documentation" tab.
 
 ## Key Features
@@ -129,10 +131,6 @@ WesAI Code Assistant is a client-side web application that leverages the Google 
     yarn preview
     ```
 4.  **Serve from `dist`:** Deploy the contents of the `dist` folder to any static site hosting service. Ensure your hosting service correctly serves `index.html` for all route paths if you implement client-side routing beyond the hash. (Currently, this app doesn't use complex routing).
-=======
-![image](https://github.com/user-attachments/assets/6b4d87ba-6147-42e0-90d1-46b22ec29edd)
-
->>>>>>> dbf1465823650ae12ad4d9552e85d9e6f0d4bc6d
 
 ## Deployment
 

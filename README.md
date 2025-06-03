@@ -101,7 +101,8 @@ For quick local testing, if you wish to temporarily use an API key without UI in
 
 ## 🖼️ Screenshots
 
-*(This is a great place to add screenshots of WesAI Code Assistant in action!)*
+![image](https://github.com/user-attachments/assets/6b4d87ba-6147-42e0-90d1-46b22ec29edd)
+
 
 *   *Login Page*
 *   *API Key Management*

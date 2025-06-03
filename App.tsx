@@ -213,7 +213,7 @@ const App: React.FC = () => {
       if (!documentationContent && !isDocLoading) { // Fetch only if not already loaded or loading
         setIsDocLoading(true);
         try {
-          const response = await fetch('/README.md');
+          const response = await fetch('/public/README.md');
           if (!response.ok) {
             throw new Error(`Failed to fetch documentation: ${response.statusText}`);
           }

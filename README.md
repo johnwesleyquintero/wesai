@@ -7,6 +7,8 @@ WesAI Code Assistant is a client-side web application that leverages the Google 
 
 **Note:** You can also view this documentation directly within the WesAI application under the "Documentation" tab!
 
+[![Netlify Status](https://api.netlify.com/api/v1/badges/fb5d8185-89ef-4e15-810f-e12e31fb0fb5/deploy-status)](https://app.netlify.com/projects/wesai/deploys)
+
 ## ✨ Key Features
 
 *   **🔐 Login Page:** Basic client-side login to protect API key usage.
@@ -99,8 +101,7 @@ For quick local testing, if you wish to temporarily use an API key without UI in
 
 ## 🖼️ Screenshots
 
-![image](https://github.com/user-attachments/assets/0c148262-e41c-4655-aaf1-5c044b2d0493)
-
+*(This is a great place to add screenshots of WesAI Code Assistant in action!)*
 
 *   *Login Page*
 *   *API Key Management*

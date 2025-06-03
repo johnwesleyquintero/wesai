@@ -1,23 +1,31 @@
 {
   "name": "wesai-code-assistant",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "preview": "vite preview"
+    "build": "vite build && copy README.md dist\\README.md",
+    "preview": "vite preview",
+    "lint": "echo \"Linting not yet configured. Consider adding ESLint + Prettier.\""
   },
   "dependencies": {
     "@google/genai": "^1.3.0",
+    "@tailwindcss/typography": "^0.5.16",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-markdown": "^9.0.1",
     "remark-gfm": "^4.0.0"
   },
   "devDependencies": {
-    "@types/node": "^22.14.0",
-    "typescript": "~5.7.2",
-    "vite": "^6.2.0"
+    "@types/node": "^20.14.0",
+    "@types/react": "^18.3.1",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "autoprefixer": "^10.4.19",
+    "postcss": "^8.4.38",
+    "tailwindcss": "^3.4.3",
+    "typescript": "~5.5.2",
+    "vite": "^5.3.1"
   }
 }

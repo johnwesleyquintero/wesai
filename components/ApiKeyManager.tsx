@@ -12,33 +12,37 @@ interface ApiKeyManagerProps {
 export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({ onSaveKey, onRemoveKey, isKeySet, currentKeySource, onLogout }) => {
   const [apiKeyInput, setApiKeyInput] = useState<string>('');
   const [showSavedMessage, setShowSavedMessage] = useState<boolean>(false);
-  // Collapse by default if a key is already set, otherwise expand.
   const [isExpanded, setIsExpanded] = useState<boolean>(!isKeySet);
 
   useEffect(() => {
-    // If a key becomes set (e.g., loaded from storage) and the section was expanded (likely due to no key before),
-    // collapse it. This handles the case where it starts expanded because no key, then key is auto-loaded.
+    // Auto-collapse if a key gets set (e.g. from env) and it was expanded due to no key
     if (isKeySet && isExpanded && currentKeySource !== 'none') {
-        // Check if it was expanded because there was no key, then it got set.
-        // A more direct way: if isKeySet becomes true and we previously initialized isExpanded to !isKeySet (which would be true)
-        // we might want to collapse.
-        // This simple logic is better: it's expanded initially if no key, user can collapse. If key is set, it's collapsed.
+      const initiallyExpandedDueToNoKey = !localStorage.getItem('geminiApiKey') && !(typeof import.meta.env !== 'undefined' && import.meta.env.VITE_GEMINI_API_KEY);
+      if (initiallyExpandedDueToNoKey) {
+        // This effect is tricky. Simpler to just let user manage expansion or default to collapsed if key is set.
+      }
     }
-  }, [isKeySet, currentKeySource, isExpanded]);
+     // Default expansion state based on key presence
+     setIsExpanded(!isKeySet);
+  }, [isKeySet, currentKeySource]);
+
 
   const handleSave = () => {
     if (apiKeyInput.trim()) {
       onSaveKey(apiKeyInput);
       setShowSavedMessage(true);
       setTimeout(() => setShowSavedMessage(false), 3000);
-      setIsExpanded(false); // Collapse after saving a key
+      setIsExpanded(false); 
     }
   };
 
   const handleRemove = () => {
-    onRemoveKey();
-    setApiKeyInput(''); 
-    setIsExpanded(true); // Expand if key is removed, to prompt for a new one
+    const confirmationMessage = "Are you sure you want to remove the API key? This will clear the currently saved key and any generated content (reviews, refactors, images, chat history) from this session. The application will then attempt to use an environment variable key if available. If no key is active, features will be disabled.";
+    if (window.confirm(confirmationMessage)) {
+      onRemoveKey();
+      setApiKeyInput(''); 
+      setIsExpanded(true); 
+    }
   };
 
   const toggleExpand = () => {

@@ -1,0 +1,242 @@
+
+import React from 'react';
+import { CodeInput } from './CodeInput.tsx';
+import { FeedbackDisplay } from './FeedbackDisplay.tsx';
+import { LoadingSpinner } from './LoadingSpinner.tsx';
+import { ActiveTab } from '../types.ts';
+
+interface CodeInteractionPanelProps {
+  activeTab: 'review' | 'refactor' | 'preview' | 'generate' | 'content';
+  code: string; // Used for code input or content description
+  onCodeChange: (event: React.ChangeEvent<HTMLTextAreaElement>) => void;
+  onClearInput: () => void; // New prop for clearing input
+  onSubmit: () => void;
+  isLoading: boolean;
+  isApiKeyConfigured: boolean;
+  feedback: string;
+  error: string | null;
+  setError: (error: string | null) => void; 
+}
+
+const parseRefactorFeedback = (fullFeedback: string): { summary: string; code: string; rawFeedback?: string } => {
+  const summaryMarker = "## Refactoring Summary:";
+  const codeMarker = "## Refactored Code:";
+  
+  let summary = "";
+  let code = "";
+
+  const summaryStartIndex = fullFeedback.indexOf(summaryMarker);
+  const codeStartIndex = fullFeedback.indexOf(codeMarker);
+
+  if (summaryStartIndex !== -1 && codeStartIndex !== -1 && codeStartIndex > summaryStartIndex) {
+    summary = fullFeedback.substring(summaryStartIndex + summaryMarker.length, codeStartIndex).trim();
+    
+    const codeBlockContentRegex = /```(?:typescript|tsx|javascript|js|jsx)\s*\n([\s\S]+?)\n```/;
+    const remainingAfterCodeMarker = fullFeedback.substring(codeStartIndex + codeMarker.length);
+    const codeMatch = remainingAfterCodeMarker.match(codeBlockContentRegex);
+
+    if (codeMatch && codeMatch[1]) {
+      code = codeMatch[1].trim();
+    } else { 
+      code = remainingAfterCodeMarker.trim();
+    }
+  } else if (summaryStartIndex !== -1) { 
+     summary = fullFeedback.substring(summaryStartIndex + summaryMarker.length).trim();
+     const codeBlockContentRegex = /```(?:typescript|tsx|javascript|js|jsx)\s*\n([\s\S]+?)\n```/;
+     const codeMatch = fullFeedback.substring(summaryStartIndex).match(codeBlockContentRegex);
+     if (codeMatch && codeMatch[1]) code = codeMatch[1].trim();
+
+  } else if (codeStartIndex !== -1) { 
+     const codeBlockContentRegex = /```(?:typescript|tsx|javascript|js|jsx)\s*\n([\s\S]+?)\n```/;
+     const remainingAfterCodeMarker = fullFeedback.substring(codeStartIndex + codeMarker.length);
+     const codeMatch = remainingAfterCodeMarker.match(codeBlockContentRegex);
+     if (codeMatch && codeMatch[1]) {
+       code = codeMatch[1].trim();
+     } else {
+       code = remainingAfterCodeMarker.trim();
+     }
+  }
+  
+  if (!summary && !code) {
+    return { summary: '', code: '', rawFeedback: fullFeedback };
+  }
+  
+  return { summary, code };
+};
+
+
+export const CodeInteractionPanel: React.FC<CodeInteractionPanelProps> = ({
+  activeTab,
+  code,
+  onCodeChange,
+  onClearInput,
+  onSubmit,
+  isLoading,
+  isApiKeyConfigured,
+  feedback,
+  error,
+  setError
+}) => {
+
+  const getActionVerb = (): string => {
+    if (activeTab === 'review') return 'review';
+    if (activeTab === 'refactor') return 'refactor';
+    if (activeTab === 'preview') return 'get a preview for';
+    if (activeTab === 'generate') return 'generate code based on';
+    if (activeTab === 'content') return 'create';
+    return 'process';
+  }
+
+  const getButtonText = (): string => {
+    if (isLoading) {
+      if (activeTab === 'review') return 'Reviewing...';
+      if (activeTab === 'refactor') return 'Refactoring...';
+      if (activeTab === 'preview') return 'Generating Preview...';
+      if (activeTab === 'generate') return 'Generating Code...';
+      if (activeTab === 'content') return 'Creating...';
+    } else {
+      if (activeTab === 'review') return 'Review Code';
+      if (activeTab === 'refactor') return 'Refactor Code';
+      if (activeTab === 'preview') return 'Get Component Preview';
+      if (activeTab === 'generate') return 'Generate Code';
+      if (activeTab === 'content') return 'Create Content';
+    }
+    return 'Submit';
+  }
+
+  const getFeedbackTitle = (): string => {
+    if (activeTab === 'review') return 'Review Feedback:';
+    if (activeTab === 'refactor') return 'Refactoring Result:';
+    if (activeTab === 'preview') return 'Component Preview:';
+    if (activeTab === 'generate') return 'Generated Code:';
+    if (activeTab === 'content') return 'Generated Content:';
+    return 'Result:';
+  }
+
+  const getLoadingMessage = (): string => {
+    if (activeTab === 'review') return 'Generating review, please wait...';
+    if (activeTab === 'refactor') return 'Generating refactoring results, please wait...';
+    if (activeTab === 'preview') return 'Generating preview description, please wait...';
+    if (activeTab === 'generate') return 'Generating your code, please wait...';
+    if (activeTab === 'content') return 'Generating content, please wait...';
+    return 'Processing, please wait...';
+  }
+  
+  const getInputPlaceholder = (): string => {
+    if (activeTab === 'generate') return "Describe the code you want to generate (e.g., 'a React component that fetches and displays a list of users', or 'a TypeScript function to sort an array by a property')...";
+    if (activeTab === 'content') return "Describe the content you want to create (e.g., 'a short blog post about AI ethics', 'a tweet announcing a new product feature', 'an outline for a documentation page on user authentication')...";
+    return "Paste your code here...";
+  }
+
+  const getInputLabel = (): string => {
+    if (activeTab === 'generate') return `Describe the code you want to ${getActionVerb()}:`;
+    if (activeTab === 'content') return `Describe the content you want to ${getActionVerb()}:`;
+    return `Enter React/TypeScript component code to ${getActionVerb()}:`;
+  }
+
+  const handleSubmitClick = () => {
+    if (!isApiKeyConfigured) {
+        setError("Gemini API key is not configured. Please set it in the API Key Management section.");
+        return;
+    }
+    if ((activeTab !== 'generate' && activeTab !== 'content') && !code.trim()) { 
+      setError(`Please enter some code to ${getActionVerb()}.`);
+      return;
+    }
+    if ((activeTab === 'generate' || activeTab === 'content') && !code.trim()) {
+      setError(`Please enter a description to ${getActionVerb()}.`);
+      return;
+    }
+    setError(null); 
+    onSubmit();
+  };
+
+
+  return (
+    <>
+      <div className="relative">
+        <label htmlFor="codeInput" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+          {getInputLabel()}
+        </label>
+        <CodeInput
+          value={code}
+          onChange={onCodeChange}
+          disabled={isLoading || !isApiKeyConfigured}
+          placeholder={getInputPlaceholder()}
+        />
+        {code && !isLoading && (
+            <button
+                onClick={onClearInput}
+                title="Clear input"
+                aria-label="Clear input field"
+                className="absolute top-8 right-2 p-1.5 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300 rounded-full focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M6 18 18 6M6 6l12 12" />
+                </svg>
+            </button>
+        )}
+      </div>
+      <button
+        onClick={handleSubmitClick}
+        disabled={isLoading || !isApiKeyConfigured || !code.trim()}
+        className="w-full flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2.5 px-4 rounded-lg shadow-md transition duration-150 ease-in-out disabled:opacity-60 disabled:cursor-not-allowed"
+      >
+        {isLoading && <LoadingSpinner />}
+        {getButtonText()}
+      </button>
+
+      {error && (
+        <div className="mt-4 p-4 bg-red-100 dark:bg-red-700/30 border border-red-400 dark:border-red-600 text-red-700 dark:text-red-200 rounded-md shadow" role="alert">
+          <strong className="font-semibold">Error:</strong> {error}
+        </div>
+      )}
+
+      {feedback && !isLoading && activeTab === 'refactor' && (() => {
+        const { summary, code: refactoredCodeContent, rawFeedback } = parseRefactorFeedback(feedback);
+        if (rawFeedback) { 
+          return (
+            <div className="mt-6">
+              <h2 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">{getFeedbackTitle()}</h2>
+              <FeedbackDisplay feedback={rawFeedback} />
+            </div>
+          );
+        }
+        return (
+          <div className="mt-6">
+            <h2 className="text-xl font-semibold mb-3 text-gray-800 dark:text-gray-200">{getFeedbackTitle()}</h2>
+            {summary && (
+              <div className="mb-6 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow">
+                <h3 className="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-300">Refactoring Summary:</h3>
+                <FeedbackDisplay feedback={summary} />
+              </div>
+            )}
+            {refactoredCodeContent && (
+              <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow">
+                <h3 className="text-lg font-semibold mb-2 text-gray-700 dark:text-gray-300">Refactored Code:</h3>
+                <FeedbackDisplay feedback={`\`\`\`typescript\n${refactoredCodeContent}\n\`\`\``} />
+              </div>
+            )}
+            {!summary && !refactoredCodeContent && !rawFeedback && feedback && (
+               <FeedbackDisplay feedback={feedback} />
+            )}
+          </div>
+        );
+      })()}
+
+      {feedback && !isLoading && activeTab !== 'refactor' && (
+        <div className="mt-6">
+          <h2 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">{getFeedbackTitle()}</h2>
+          <FeedbackDisplay feedback={feedback} />
+        </div>
+      )}
+      
+      {isLoading && (
+         <div className="mt-6 flex flex-col items-center justify-center p-6 bg-gray-50 dark:bg-gray-800/30 rounded-lg shadow-md">
+            <LoadingSpinner />
+            <p className="mt-2 text-gray-600 dark:text-gray-300">{getLoadingMessage()}</p>
+        </div>
+      )}
+    </>
+  );
+};

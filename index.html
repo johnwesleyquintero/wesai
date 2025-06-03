@@ -5,36 +5,44 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WesAI Code Assistant</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><polygon points=%2250,10 90,90 10,90%22 fill=%22purple%22/></svg>">
+  <link rel="stylesheet" href="/index.css">
   <script>
-    // IMPORTANT: Configure Tailwind for class-based dark mode
-    // This must come BEFORE the Tailwind CDN script
-    window.tailwind = {
-      darkMode: 'class'
-    };
-    // process.env.API_KEY needs to be available in the environment this app runs.
-    // For local development without a build process, you might temporarily define it here for testing:
-    // window.process = { env: { API_KEY: 'YOUR_GEMINI_API_KEY' } };
-    // IMPORTANT: Do not commit real API keys to version control.
+    // For Tailwind dark mode based on class
+    // Check local storage for theme preference
+    const theme = localStorage.getItem('theme');
+    if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+
+    // API_KEY handling:
+    // Vite exposes environment variables prefixed with VITE_ to the client code via import.meta.env.
+    // For local development, create a .env file in the root of your project and add:
+    // VITE_GEMINI_API_KEY=YOUR_ACTUAL_GEMINI_API_KEY
+    // IMPORTANT: Do not commit your .env file or real API keys to version control.
+    // The application will prioritize keys saved in LocalStorage via the UI.
   </script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Babel for ReactPreviewRenderer -->
+  <script src="https://unpkg.com/@babel/standalone@7.24.0/babel.min.js"></script>
+  
 <script type="importmap">
 {
   "imports": {
+    "react": "https://esm.sh/react@^19.1.0",
     "react-dom/": "https://esm.sh/react-dom@^19.1.0/",
     "react/": "https://esm.sh/react@^19.1.0/",
-    "react": "https://esm.sh/react@^19.1.0",
     "@google/genai": "https://esm.sh/@google/genai@^1.3.0",
-    "react-markdown": "https://esm.sh/react-markdown@^9.0.1",
-    "remark-gfm": "https://esm.sh/remark-gfm@^4.0.0"
+    "react-markdown": "https://esm.sh/react-markdown@^10.1.0",
+    "remark-gfm": "https://esm.sh/remark-gfm@^4.0.1",
+    "vite": "https://esm.sh/vite@^6.3.5",
+    "@vitejs/plugin-react": "https://esm.sh/@vitejs/plugin-react@^4.5.1"
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
 </head>
-<body class="bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-200">
+<body>
   <div id="root"></div>
-  
-<script type="module" src="/index.tsx"></script>
+  <script type="module" src="/index.tsx"></script>
 </body>
 </html>

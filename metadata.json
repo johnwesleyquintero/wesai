@@ -1,5 +1,6 @@
 {
   "name": "WesAI Code Assistant",
   "description": "An automated code review tool that uses the Gemini API to analyze code and provide feedback on correctness, readability, performance, best practices, and security, with a focus on TypeScript and React.",
-  "requestFramePermissions": []
+  "requestFramePermissions": [],
+  "prompt": ""
 }

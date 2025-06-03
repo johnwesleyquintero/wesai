@@ -1,143 +1,161 @@
 
-# WesAI Code Assistant 🤖✨
+# WesAI Code Assistant
 
-**Your AI-powered pair programmer for TypeScript & React, built by brothers in code!**
+**Your AI-powered pair programmer & creative assistant!**
 
-WesAI Code Assistant is a client-side web application that leverages the Google Gemini API to provide intelligent code analysis, refactoring suggestions, component explanations, code generation, and an interactive chat mode, with a special focus on TypeScript and React development. This tool was forged in a fun, collaborative spirit – think of it as your AI dev bro!
+WesAI Code Assistant is a client-side web application that leverages the Google Gemini API (for text-based tasks) and Imagen API (for image generation) to provide intelligent code analysis, refactoring suggestions, component explanations, code generation, general content creation, image generation, and an interactive chat mode, with a special focus on TypeScript and React development.
 
-**Note:** You can also view this documentation directly within the WesAI application under the "Documentation" tab!
+**Note:** You can also view this documentation directly within the WesAI application under the "Documentation" tab.
 
-[![Netlify Status](https://api.netlify.com/api/v1/badges/fb5d8185-89ef-4e15-810f-e12e31fb0fb5/deploy-status)](https://app.netlify.com/projects/wesai/deploys)
+## Key Features
 
-## ✨ Key Features
-
-*   **🔐 Login Page:** Basic client-side login to protect API key usage.
-*   🔑 **API Key Management:** Securely save and remove your Gemini API key using browser local storage.
-*   🌞 **Light/Dark Mode Toggle:** Switch between light and dark themes for comfortable viewing. Your preference is saved!
-*   🧐 **Code Review:** Get detailed feedback on your code regarding:
+*   **Login Page:** Basic client-side login to protect API key usage.
+*   **API Key Management:** Securely save and remove your Gemini API key using browser local storage. Includes confirmation before key removal to prevent accidental data loss.
+*   **Light/Dark Mode Toggle:** Switch between light and dark themes for comfortable viewing. Your preference is saved.
+*   **Code Review:** Get detailed feedback on your code regarding:
     *   Potential bugs and logic errors
     *   Clarity, readability, and maintainability
     *   Performance optimizations (React-specific)
     *   Adherence to TypeScript & React best practices
     *   Security vulnerabilities
-*   💅 **Code Refactor:** Receive AI-generated refactoring suggestions, including:
+*   **Code Refactor:** Receive AI-generated refactoring suggestions, including:
     *   A summary of improvements
     *   The full refactored code
     *   Focus on modernizing syntax and improving TypeScript/React patterns.
-*   📄 **Component Preview (Textual):** Get a textual description of your React components, covering:
+*   **Component Preview (Textual):** Get a textual description of your React components, covering:
     *   Purpose and visual structure
     *   Expected props and their roles
     *   Internal state and behavior
     *   User interactivity
-*   💻 **Code Generation:** Describe the code you need (e.g., a React component, a TypeScript function), and WesAI will generate it for you.
-*   💬 **Interactive Chat Mode:**
-    *   Ask follow-up questions about reviews, refactors, previews, or generated code.
+*   **Code Generation:** Describe the code you need (e.g., a React component, a TypeScript function), and WesAI will generate it for you.
+*   **Content Creation:** Describe any type of written content you need (e.g., blog posts, social media updates, documentation sections, email copy), and WesAI will generate it.
+*   **Image Generation:** Describe an image you want to create, and WesAI will generate it using Google's Imagen model. Includes a download option.
+*   **Interactive Chat Mode:**
+    *   Ask follow-up questions about reviews, refactors, previews, or generated code/content.
     *   Get general coding assistance for TypeScript and React.
-    *   Powered by Gemini's chat capabilities (your other AI bro!).
-*   📖 **In-App Documentation:** View this README directly within the application for easy reference.
-*   💅 **Sleek UI:** Modern, responsive interface built with Tailwind CSS, now with theme support.
+    *   Live preview for React components generated in chat.
+*   **In-App Documentation:** View this README directly within the application for easy reference.
+*   **Sleek UI:** Modern, responsive interface built with Tailwind CSS, with theme support and convenient "clear input" buttons.
 
 ## 🛠️ Technology Stack
 
 *   **Frontend:** React, TypeScript
 *   **Styling:** Tailwind CSS (with class-based Dark Mode)
-*   **AI:** Google Gemini API (`gemini-2.5-flash-preview-04-17`)
-*   **Modules:** Loaded via ES Modules & `esm.sh` (no build step required for basic use)
+*   **AI:** Google Gemini API (`gemini-2.5-flash-preview-04-17` for text tasks, `imagen-3.0-generate-002` for image generation)
+*   **Build Tool:** Vite
+*   **Modules:** Loaded via ES Modules & `esm.sh` for CDN access in development, bundled by Vite for production.
 
 ## 🚀 Getting Started
 
 ### Prerequisites
 
 *   A modern web browser (Chrome, Firefox, Edge, Safari).
-*   A **Google Gemini API Key**. You can obtain one from [Google AI Studio](https://aistudio.google.com/app/apikey).
+*   A **Google Gemini API Key**. You can obtain one from [Google AI Studio](https://aistudio.google.com/app/apikey). Ensure this key is enabled for both the Gemini API and the Imagen API (often covered by "Generative Language API" or similar in Google Cloud Console if using project-based keys).
 
-### Running Locally
+### Running Locally (Using Vite Dev Server - Recommended)
 
-1.  **Download/Clone:** Ensure all project files and folders (`index.html`, `index.tsx`, `App.tsx`, `LoginPage.tsx`, `metadata.json`, `README.md`, `components/`, `services/`) are in a single project directory.
-2.  **Serve `index.html`:** Since this is a client-side application without a build step, you need to serve `index.html` via an HTTP server.
-    *   **Using VS Code Live Server:** If you use VS Code, the "Live Server" extension is a great option. Right-click `index.html` and select "Open with Live Server."
-    *   **Using Python:** If you have Python installed, navigate to the project directory in your terminal and run:
-        ```bash
-        python -m http.server
+1.  **Download/Clone:** Ensure all project files and folders are in a single project directory.
+2.  **Install Dependencies:** You'll need Node.js and npm (or yarn).
+    ```bash
+    # Using npm
+    npm install
+    # Or using yarn
+    yarn install
+    ```
+3.  **Set up Environment Variable (Optional but Recommended for Dev):**
+    *   Create a file named `.env` in the root of your project.
+    *   Add your Gemini API key to this file:
+        ```env
+        VITE_GEMINI_API_KEY=YOUR_ACTUAL_GEMINI_API_KEY
         ```
-        Then open `http://localhost:8000` (or the port shown) in your browser.
-    *   **Other HTTP Servers:** Any simple static file server will work.
-3.  **Login:**
+    *   **IMPORTANT:** Do not commit your `.env` file or real API keys to version control. The `.gitignore` file (if you create one) should include `.env`.
+4.  **Run the Development Server:**
+    ```bash
+    # Using npm
+    npm run dev
+    # Or using yarn
+    yarn dev
+    ```
+    This will typically start the server on `http://localhost:5173` (or another port if 5173 is busy).
+5.  **Login:**
     *   When you first open the application, you will be prompted to log in.
     *   The password is: **`wesai_rocks`**
     *   *(Note: This is a hardcoded password for local/personal use to protect API key access and is not secure for production environments.)*
-4.  **API Key Setup:**
+6.  **API Key Setup (if not using `.env` or to override):**
     *   After logging in, you'll see the "Manage Gemini API Key" section.
-    *   Enter your Gemini API Key into the input field.
-    *   Click "Save Key." The key will be stored in your browser's local storage for future sessions.
+    *   If you didn't set the `VITE_GEMINI_API_KEY` or wish to use a different key, enter your Gemini API Key into the input field.
+    *   Click "Save Key." The key will be stored in your browser's local storage for future sessions and will take precedence over the environment variable.
     *   **Security Note:** Storing API keys in browser local storage is convenient for client-side tools but can be a security risk if the site is vulnerable to XSS attacks. For production applications with multiple users, API keys should ideally be managed on a secure backend server.
 
-### (Optional) Local Development - Using `process.env.API_KEY`
-
-For quick local testing, if you wish to temporarily use an API key without UI input:
-1.  Open `index.html`.
-2.  Find the commented-out line within the first `<script>` tag:
-    ```html
-    // window.process = { env: { API_KEY: 'YOUR_GEMINI_API_KEY' } };
-    ```
-3.  Uncomment it and replace `YOUR_GEMINI_API_KEY` with your actual key.
-**IMPORTANT:** Do NOT commit your real API key to version control if you use this method. This is only for transient local development. The UI method is preferred.
-
-## 💡 How to Use
+## How to Use
 
 1.  **Login** to the application.
-2.  **Set your API Key** if you haven't already.
+2.  **Set your API Key** if it's not already configured (either via `.env` or the UI).
 3.  **Toggle Theme (Optional):** Use the sun/moon icon in the header to switch between light and dark modes.
 4.  **Select a Tab:**
-    *   **Review:** Paste your TypeScript/React code into the input area and click "Review Code." The AI will provide detailed feedback.
-    *   **Refactor:** Paste your code and click "Refactor Code." You'll receive a summary of changes and the fully refactored code.
-    *   **Preview:** Paste a React component's code and click "Get Component Preview" to get a textual description of its functionality, props, state, and behavior.
-    *   **Generate:** Enter a description of the code you want (e.g., "a React functional component for a simple counter with increment and decrement buttons") in the input area and click "Generate Code." The AI will attempt to generate the code for you.
-    *   **Chat:** Click the "Chat" tab. An AI chat session will start. Type your questions related to code, TypeScript, React, or previous AI outputs into the input field and click "Send."
+    *   **Review:** Paste your TypeScript/React code into the input area and click "Review Code."
+    *   **Refactor:** Paste your code and click "Refactor Code." You'll receive a summary and the refactored code.
+    *   **Preview:** Paste React component code and click "Get Component Preview" for a textual description.
+    *   **Generate:** Describe the code you want and click "Generate Code."
+    *   **Content:** Describe the written content you need (e.g., blog post idea, tweet, email draft) and click "Create Content."
+    *   **Image:** Type a description of the image you want (a "prompt") and click "Generate Image." You can then download the result.
+    *   **Chat:** Click the "Chat" tab. Ask questions related to code, TypeScript, React, or previous AI outputs. Component code in chat can be previewed live.
     *   **Documentation:** Click the "Documentation" tab to view this README file.
-5.  **View Results:** Feedback, refactored code, previews, generated code, and chat responses will appear in the display area.
-6.  **Copy Feedback:** Use the copy button on feedback panels to easily copy the AI's output.
-7.  **Logout:** Click the "Logout" button in the API key management section to end your session.
+5.  **View Results:** Feedback, refactored code, previews, generated code/content/images, and chat responses will appear.
+6.  **Copy Output:** Use the copy buttons on feedback panels or chat messages.
+7.  **Clear Inputs:** Use the "X" icon next to input fields to quickly clear them.
+8.  **Logout:** Click the "Logout" button in the API key management section. This will also clear any API key set via the UI.
 
-## 🖼️ Screenshots
+## Building for Production
 
-*(This is a great place to add screenshots of WesAI Code Assistant in action!)*
+1.  **Install Dependencies** (if not already done):
+    ```bash
+    npm install
+    # or
+    yarn install
+    ```
+2.  **Run the Build Script:**
+    ```bash
+    npm run build
+    # or
+    yarn build
+    ```
+    This will create a `dist` folder with optimized, static assets.
+3.  **Preview Production Build (Optional):**
+    ```bash
+    npm run preview
+    # or
+    yarn preview
+    ```
+4.  **Serve from `dist`:** Deploy the contents of the `dist` folder to any static site hosting service. Ensure your hosting service correctly serves `index.html` for all route paths if you implement client-side routing beyond the hash. (Currently, this app doesn't use complex routing).
 
-*   *Login Page*
-*   *API Key Management*
-*   *Light/Dark Mode Toggle*
-*   *Code Review Tab with Feedback*
-*   *Code Refactor Tab with Results*
-*   *Component Preview Tab*
-*   *Code Generation Tab*
-*   *Chat Tab Interface*
-*   *Documentation Tab*
+## Deployment
 
-## ☁️ Deployment
+WesAI Code Assistant can be deployed as a static web application.
+1.  Run the build script: `npm run build` (or `yarn build`).
+2.  Deploy the contents of the generated `dist` folder to any platform that supports static site hosting, such as:
+    *   Vercel
+    *   Netlify
+    *   GitHub Pages
+    *   Cloudflare Pages
+    *   Firebase Hosting
+Ensure `README.md` is in the `public` folder (Vite default) or configured to be copied to the `dist` folder so it can be fetched by the Documentation tab. (In the current setup, Vite will copy files from `public` to `dist` root).
 
-WesAI Code Assistant is a static web application. You can deploy it to any platform that supports static site hosting, such as:
-
-*   [Vercel](https://vercel.com/)
-*   [Netlify](https://www.netlify.com/)
-*   [GitHub Pages](https://pages.github.com/)
-*   [Cloudflare Pages](https://pages.cloudflare.com/)
-*   [Firebase Hosting](https://firebase.google.com/docs/hosting)
-
-Simply upload the project files to your chosen hosting provider. Ensure `README.md` is in the root of your deployment so it can be fetched by the Documentation tab.
-
-## 🔮 Future Ideas
+## Future Ideas
 
 *   Visual diff view for refactored code.
 *   Option to select specific focus areas for review/refactoring/generation.
-*   More advanced chat context retention.
-*   VS Code Extension!
+*   More advanced chat context retention and history management.
+*   VS Code Extension.
+*   Support for uploading files directly for review/refactor.
 
-## 🙏 Acknowledgements
+## Acknowledgements
 
-*   Powered by the **Google Gemini API** (Shoutout to our AI Bro Gemini!).
-*   Built with love, TypeScript, and React by a couple of dev brothers.
+*   Powered by the Google Gemini and Imagen APIs.
+*   Built with TypeScript and React.
 *   Styled with Tailwind CSS.
+*   Development and bundling with Vite.
 
 ---
 
-Happy Coding with WesAI! 🚀
+Happy Coding & Creating with WesAI!

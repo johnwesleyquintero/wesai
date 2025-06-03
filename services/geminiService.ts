@@ -1,13 +1,13 @@
-
 import { GoogleGenAI, GenerateContentResponse, Chat } from "@google/genai";
 
 let ai: GoogleGenAI | null = null;
-const MODEL_NAME = 'gemini-2.5-flash-preview-04-17';
+const MODEL_NAME_TEXT = 'gemini-2.5-flash-preview-04-17';
+const MODEL_NAME_IMAGE = 'imagen-3.0-generate-002';
+
 
 export const initializeGeminiClient = (apiKey: string): void => {
   try {
     ai = new GoogleGenAI({ apiKey });
-    // console.log("Gemini client initialized successfully."); // Removed for cleaner console
   } catch (error) {
     console.error("Failed to initialize GoogleGenAI:", error);
     ai = null; 
@@ -17,27 +17,33 @@ export const initializeGeminiClient = (apiKey: string): void => {
 
 export const clearGeminiClient = (): void => {
   ai = null;
-  // console.log("Gemini client cleared."); // Removed for cleaner console
 };
 
-// Updated interface for the simplified streaming parts
 interface RefactorStreamingPart {
   type: 'chunk' | 'error' | 'finish_reason';
-  data?: string; // For chunk
-  message?: string; // For error
-  reason?: string; // For finish_reason
-  safetyRatings?: any; // For finish_reason (optional)
+  data?: string; 
+  message?: string; 
+  reason?: string; 
+  safetyRatings?: any;
 }
 
 
 const getAiInstance = (): GoogleGenAI => {
   if (!ai) {
-    if (process.env.API_KEY) {
+    // Safely access VITE_GEMINI_API_KEY
+    const envApiKey = typeof import.meta.env !== 'undefined' ? import.meta.env.VITE_GEMINI_API_KEY : undefined;
+    if (envApiKey && envApiKey.trim() !== '') {
         console.warn("Attempting to initialize Gemini client from environment variable as it was not previously initialized.");
-        initializeGeminiClient(process.env.API_KEY);
-        if (ai) return ai;
+        try {
+            initializeGeminiClient(envApiKey);
+        } catch (initError) {
+            console.error("Failed to initialize Gemini client from env var during getAiInstance:", initError);
+        }
     }
-    throw new Error("Gemini API client is not initialized. Please set your API key in the application settings.");
+    
+    if (!ai) {
+      throw new Error("Gemini API client is not initialized. Please set your API key in the application settings. If using a Vite development environment, ensure VITE_GEMINI_API_KEY is set in your .env file and the app is served via 'npm run dev' or similar Vite command.");
+    }
   }
   return ai;
 };
@@ -67,7 +73,7 @@ ${code}
 
   try {
     const response: GenerateContentResponse = await currentAi.models.generateContent({
-        model: MODEL_NAME,
+        model: MODEL_NAME_TEXT,
         contents: prompt,
       });
     
@@ -117,7 +123,7 @@ ${code}
 
   try {
     const stream = await currentAi.models.generateContentStream({
-      model: MODEL_NAME,
+      model: MODEL_NAME_TEXT,
       contents: prompt,
     });
 
@@ -170,7 +176,7 @@ ${code}
 
   try {
     const response: GenerateContentResponse = await currentAi.models.generateContent({
-        model: MODEL_NAME,
+        model: MODEL_NAME_TEXT,
         contents: prompt,
       });
     
@@ -211,7 +217,7 @@ Generated Code:
 
   try {
     const response: GenerateContentResponse = await currentAi.models.generateContent({
-        model: MODEL_NAME,
+        model: MODEL_NAME_TEXT,
         contents: prompt,
     });
     
@@ -233,6 +239,72 @@ Generated Code:
   }
 };
 
+export const generateContentWithGemini = async (description: string): Promise<string> => {
+  const currentAi = getAiInstance();
+  const prompt = `
+You are an expert AI content creation assistant.
+Please generate content based on the following description.
+Focus on creating clear, engaging, and well-structured text suitable for the described purpose (e.g., blog post, social media update, documentation section, email copy, creative writing, etc.).
+Adapt your tone and style to the user's request.
+Provide *only* the generated content. Do not add explanations, introductions, or sign-offs unless they are part of the requested content itself.
+
+Description:
+"${description}"
+
+Generated Content:
+`;
+
+  try {
+    const response: GenerateContentResponse = await currentAi.models.generateContent({
+        model: MODEL_NAME_TEXT,
+        contents: prompt,
+    });
+    
+    const text = response.text;
+    if (!text || text.trim() === '') {
+        throw new Error("Received empty generated content from the API.");
+    }
+    return text;
+
+  } catch (error) {
+    console.error("Error calling Gemini API for content generation:", error);
+    if (error instanceof Error) {
+        if (error.message.includes("API key not valid") || error.message.includes("invalid api key") || error.message.includes("API key is not valid")) {
+             throw new Error("Invalid or unauthorized Gemini API key. Please check your key and permissions.");
+        }
+         throw new Error(`Gemini API request for content generation failed: ${error.message}`);
+    }
+    throw new Error("An unknown error occurred while communicating with the Gemini API for content generation.");
+  }
+};
+
+
+export const generateImageWithImagen = async (prompt: string): Promise<string> => {
+  const currentAi = getAiInstance();
+  try {
+    const response = await currentAi.models.generateImages({
+        model: MODEL_NAME_IMAGE,
+        prompt: prompt,
+        config: { numberOfImages: 1, outputMimeType: 'image/jpeg' },
+    });
+
+    if (response.generatedImages && response.generatedImages.length > 0 && response.generatedImages[0].image?.imageBytes) {
+        return response.generatedImages[0].image.imageBytes;
+    } else {
+        throw new Error("No image data received from the API or image generation failed.");
+    }
+  } catch (error) {
+    console.error("Error calling Imagen API for image generation:", error);
+    if (error instanceof Error) {
+      if (error.message.includes("API key not valid") || error.message.includes("invalid api key") || error.message.includes("API key is not valid")) {
+        throw new Error("Invalid or unauthorized Gemini API key. Please check your key and permissions for Imagen.");
+      }
+      throw new Error(`Imagen API request for image generation failed: ${error.message}`);
+    }
+    throw new Error("An unknown error occurred while communicating with the Imagen API for image generation.");
+  }
+};
+
 
 // --- Chat Functions ---
 
@@ -240,12 +312,11 @@ export const startChatSession = async (systemInstruction: string): Promise<Chat>
   const currentAi = getAiInstance();
   try {
     const chatSession: Chat = currentAi.chats.create({
-      model: MODEL_NAME,
+      model: MODEL_NAME_TEXT,
       config: {
         systemInstruction: systemInstruction,
       },
     });
-    // console.log("Chat session started successfully."); // Removed for cleaner console
     return chatSession;
   } catch (error) {
     console.error("Error starting chat session:", error);

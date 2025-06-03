@@ -21,7 +21,7 @@ export const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({ feedback }) =>
 
   const handleCopy = useCallback(async () => {
     try {
-      await navigator.clipboard.writeText(feedback);
+      await navigator.clipboard.writeText(feedback || ''); // Ensure string for clipboard
       setIsCopied(true);
       setTimeout(() => setIsCopied(false), 2000); 
     } catch (err) {
@@ -82,7 +82,7 @@ export const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({ feedback }) =>
             },
           } as Components}
         >
-          {feedback}
+          {feedback || ''}
         </ReactMarkdown>
       </div>
     </div>

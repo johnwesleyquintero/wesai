@@ -14,11 +14,7 @@ export const ThemeToggleButton: React.FC<ThemeToggleButtonProps> = ({ theme, tog
       aria-label={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
       title={theme === 'light' ? 'Switch to dark mode' : 'Switch to light mode'}
     >
-      {theme === 'light' ? (
-        <FaMoon className="w-6 h-6" />
-      ) : (
-        <FaSun className="w-6 h-6" />
-      )}
+      {theme === 'light' ? <FaMoon className="w-6 h-6" /> : <FaSun className="w-6 h-6" />}
     </button>
   );
 };

@@ -1,7 +1,6 @@
 import React from 'react';
 import { ApiKeyManager } from './ApiKeyManager.tsx';
-import { ApiKeyStatus } from './ApiKeyStatus.tsx';
-import { ApiKeySource } from '../types.ts';
+import { ApiKeySource, Theme } from '../types.ts';
 
 interface ApiKeySectionProps {
   onSaveKey: (key: string) => void;
@@ -9,6 +8,8 @@ interface ApiKeySectionProps {
   isKeySet: boolean;
   currentKeySource: ApiKeySource;
   onLogout: () => void;
+  theme: Theme;
+  toggleTheme: () => void;
 }
 
 export const ApiKeySection: React.FC<ApiKeySectionProps> = ({
@@ -17,6 +18,8 @@ export const ApiKeySection: React.FC<ApiKeySectionProps> = ({
   isKeySet,
   currentKeySource,
   onLogout,
+  theme,
+  toggleTheme,
 }) => {
   return (
     <div className="my-6">
@@ -26,10 +29,10 @@ export const ApiKeySection: React.FC<ApiKeySectionProps> = ({
         isKeySet={isKeySet}
         currentKeySource={currentKeySource}
         onLogout={onLogout}
+        theme={theme}
+        toggleTheme={toggleTheme}
       />
-      <div className="mt-2">
-        <ApiKeyStatus apiKeyIsSet={isKeySet} apiKeySource={currentKeySource} />
-      </div>
+      <div className="mt-2"></div>
     </div>
   );
 };

@@ -1,6 +1,12 @@
-import { Chat } from '@google/genai';
-
-export type ActiveTab = 'review' | 'refactor' | 'preview' | 'generate' | 'chat' | 'documentation' | 'content' | 'image';
+export type ActiveTab =
+  | 'review'
+  | 'refactor'
+  | 'preview'
+  | 'generate'
+  | 'chat'
+  | 'documentation'
+  | 'content'
+  | 'image';
 export type ApiKeySource = 'ui' | 'env' | 'none';
 export type Theme = 'light' | 'dark';
 

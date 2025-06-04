@@ -16,12 +16,14 @@ export const DocumentationViewerPanel: React.FC = () => {
       try {
         const response = await fetch('/README.md');
         if (!response.ok) {
-          throw new Error(`Failed to fetch documentation: ${response.statusText} (Status: ${response.status}). Ensure README.md is in the public directory or project root.`);
+          throw new Error(
+            `Failed to fetch documentation: ${response.statusText} (Status: ${response.status}). Ensure README.md is in the public directory or project root.`,
+          );
         }
         const markdown = await response.text();
         setDocumentationContent(markdown);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : "An unknown error occurred";
+        const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
         setDocError(`Error loading documentation: ${errorMessage}`);
         setDocumentationContent('');
         console.error(err);
@@ -34,7 +36,7 @@ export const DocumentationViewerPanel: React.FC = () => {
   useEffect(() => {
     fetchDocumentation();
   }, [fetchDocumentation]);
-  
+
   const markdownComponents: Components = {
     // @ts-ignore due to mismatch in react-markdown types for node
     pre: PreWithCopyButton,
@@ -45,7 +47,9 @@ export const DocumentationViewerPanel: React.FC = () => {
 
   return (
     <div className="mt-6">
-      <h2 className="text-xl font-semibold mb-3 text-gray-800 dark:text-gray-200">{getFeedbackTitle()}</h2>
+      <h2 className="text-xl font-semibold mb-3 text-gray-800 dark:text-gray-200">
+        {getFeedbackTitle()}
+      </h2>
       <div className="bg-gray-50 dark:bg-gray-700 p-4 md:p-6 rounded-lg shadow-inner overflow-y-auto max-h-[70vh]">
         {isDocLoading && (
           <div className="flex flex-col items-center justify-center p-6">
@@ -56,7 +60,7 @@ export const DocumentationViewerPanel: React.FC = () => {
         {!isDocLoading && docError && documentationContent === '' && (
           <div className="text-red-700 dark:text-red-300 p-4 bg-red-100 dark:bg-red-700/20 rounded-md">
             <strong className="font-semibold">Error:</strong> Could not load documentation.
-            {docError.includes("Failed to fetch documentation")
+            {docError.includes('Failed to fetch documentation')
               ? " Please ensure README.md is in your project's public directory or root folder for Vite to serve it correctly."
               : docError}
           </div>
@@ -83,7 +87,9 @@ export const DocumentationViewerPanel: React.FC = () => {
           </div>
         )}
         {!isDocLoading && !documentationContent && !docError && (
-          <p className="text-gray-500 dark:text-gray-400">No documentation content loaded or available.</p>
+          <p className="text-gray-500 dark:text-gray-400">
+            No documentation content loaded or available.
+          </p>
         )}
       </div>
     </div>

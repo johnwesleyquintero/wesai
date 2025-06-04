@@ -1,14 +1,14 @@
-
 import React, { useState } from 'react';
+import { Theme } from './types';
 
 interface LoginPageProps {
   onLoginSuccess: () => void;
-  currentTheme?: 'light' | 'dark'; // Optional, as body will handle global theme
+  currentTheme: Theme;
 }
 
-const HARDCODED_PASSWORD = 'wesai_rocks'; 
+const HARDCODED_PASSWORD = 'wesai_rocks';
 
-export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, currentTheme }) => {
+export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
@@ -35,7 +35,10 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, currentThe
         </header>
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+            >
               Password
             </label>
             <div className="mt-1">
@@ -53,7 +56,9 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, currentThe
           </div>
 
           {error && (
-            <p className="text-sm text-red-600 dark:text-red-400 text-center" role="alert">{error}</p>
+            <p className="text-sm text-red-600 dark:text-red-400 text-center" role="alert">
+              {error}
+            </p>
           )}
 
           <div>
@@ -66,7 +71,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess, currentThe
           </div>
         </form>
         <p className="mt-6 text-center text-xs text-gray-500 dark:text-gray-400">
-          This is a simplified client-side login for demonstration and to protect API key usage. <br /> The password is hardcoded and not suitable for production security.
+          This is a simplified client-side login for demonstration and to protect API key usage.{' '}
+          <br /> The password is hardcoded and not suitable for production security.
         </p>
       </div>
     </div>

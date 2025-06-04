@@ -1,17 +1,16 @@
-import { GoogleGenAI, GenerateContentResponse, Chat } from "@google/genai";
+import { GoogleGenAI, GenerateContentResponse, Chat } from '@google/genai';
 
 let ai: GoogleGenAI | null = null;
 const MODEL_NAME_TEXT = 'gemini-2.5-flash-preview-04-17';
 const MODEL_NAME_IMAGE = 'imagen-3.0-generate-002';
 
-
 export const initializeGeminiClient = (apiKey: string): void => {
   try {
     ai = new GoogleGenAI({ apiKey });
   } catch (error) {
-    console.error("Failed to initialize GoogleGenAI:", error);
-    ai = null; 
-    throw new Error("Failed to initialize Gemini client. Check API key format or SDK issue.");
+    console.error('Failed to initialize GoogleGenAI:', error);
+    ai = null;
+    throw new Error('Failed to initialize Gemini client. Check API key format or SDK issue.');
   }
 };
 
@@ -21,28 +20,35 @@ export const clearGeminiClient = (): void => {
 
 interface RefactorStreamingPart {
   type: 'chunk' | 'error' | 'finish_reason';
-  data?: string; 
-  message?: string; 
-  reason?: string; 
+  data?: string;
+  message?: string;
+  reason?: string;
   safetyRatings?: any;
 }
-
 
 const getAiInstance = (): GoogleGenAI => {
   if (!ai) {
     // Safely access VITE_GEMINI_API_KEY
-    const envApiKey = typeof import.meta.env !== 'undefined' ? import.meta.env.VITE_GEMINI_API_KEY : undefined;
+    const envApiKey =
+      typeof import.meta.env !== 'undefined' ? import.meta.env.VITE_GEMINI_API_KEY : undefined;
     if (envApiKey && envApiKey.trim() !== '') {
-        console.warn("Attempting to initialize Gemini client from environment variable as it was not previously initialized.");
-        try {
-            initializeGeminiClient(envApiKey);
-        } catch (initError) {
-            console.error("Failed to initialize Gemini client from env var during getAiInstance:", initError);
-        }
+      console.warn(
+        'Attempting to initialize Gemini client from environment variable as it was not previously initialized.',
+      );
+      try {
+        initializeGeminiClient(envApiKey);
+      } catch (initError) {
+        console.error(
+          'Failed to initialize Gemini client from env var during getAiInstance:',
+          initError,
+        );
+      }
     }
-    
+
     if (!ai) {
-      throw new Error("Gemini API client is not initialized. Please set your API key in the application settings. If using a Vite development environment, ensure VITE_GEMINI_API_KEY is set in your .env file and the app is served via 'npm run dev' or similar Vite command.");
+      throw new Error(
+        "Gemini API client is not initialized. Please set your API key in the application settings. If using a Vite development environment, ensure VITE_GEMINI_API_KEY is set in your .env file and the app is served via 'npm run dev' or similar Vite command.",
+      );
     }
   }
   return ai;
@@ -73,29 +79,38 @@ ${code}
 
   try {
     const response: GenerateContentResponse = await currentAi.models.generateContent({
-        model: MODEL_NAME_TEXT,
-        contents: prompt,
-      });
-    
+      model: MODEL_NAME_TEXT,
+      contents: prompt,
+    });
+
     const text = response.text;
     if (!text || text.trim() === '') {
-        throw new Error("Received an empty review from the API.");
+      throw new Error('Received an empty review from the API.');
     }
     return text;
-
   } catch (error) {
-    console.error("Error calling Gemini API for review:", error);
+    console.error('Error calling Gemini API for review:', error);
     if (error instanceof Error) {
-        if (error.message.includes("API key not valid") || error.message.includes("invalid api key") || error.message.includes("API key is not valid")) {
-             throw new Error("Invalid or unauthorized Gemini API key. Please check your key and permissions.");
-        }
-         throw new Error(`Gemini API request for review failed: ${error.message}`);
+      if (
+        error.message.includes('API key not valid') ||
+        error.message.includes('invalid api key') ||
+        error.message.includes('API key is not valid')
+      ) {
+        throw new Error(
+          'Invalid or unauthorized Gemini API key. Please check your key and permissions.',
+        );
+      }
+      throw new Error(`Gemini API request for review failed: ${error.message}`);
     }
-    throw new Error("An unknown error occurred while communicating with the Gemini API for review.");
+    throw new Error(
+      'An unknown error occurred while communicating with the Gemini API for review.',
+    );
   }
 };
 
-export async function* refactorCodeWithGeminiStream(code: string): AsyncIterable<RefactorStreamingPart> {
+export async function* refactorCodeWithGeminiStream(
+  code: string,
+): AsyncIterable<RefactorStreamingPart> {
   const currentAi = getAiInstance();
   const prompt = `
 You are an expert AI code refactoring assistant, particularly skilled in TypeScript and React.
@@ -138,20 +153,22 @@ ${code}
 
       if (finishReason && finishReason !== 'STOP' && finishReason !== 'MAX_TOKENS') {
         yield { type: 'finish_reason', reason: finishReason, safetyRatings };
-        return; 
+        return;
       }
     }
   } catch (error) {
-    console.error("Error in refactorCodeWithGeminiStream:", error);
-    const message = error instanceof Error ? error.message : "An unknown error occurred during refactoring stream.";
-    if (message.includes("API key not valid") || message.includes("invalid api key")) {
-      yield { type: 'error', message: "Invalid or unauthorized Gemini API key." };
+    console.error('Error in refactorCodeWithGeminiStream:', error);
+    const message =
+      error instanceof Error
+        ? error.message
+        : 'An unknown error occurred during refactoring stream.';
+    if (message.includes('API key not valid') || message.includes('invalid api key')) {
+      yield { type: 'error', message: 'Invalid or unauthorized Gemini API key.' };
     } else {
       yield { type: 'error', message: `Gemini API request for refactor stream failed: ${message}` };
     }
   }
 }
-
 
 export const getReactComponentPreview = async (code: string): Promise<string> => {
   const currentAi = getAiInstance();
@@ -176,28 +193,34 @@ ${code}
 
   try {
     const response: GenerateContentResponse = await currentAi.models.generateContent({
-        model: MODEL_NAME_TEXT,
-        contents: prompt,
-      });
-    
+      model: MODEL_NAME_TEXT,
+      contents: prompt,
+    });
+
     const text = response.text;
     if (!text || text.trim() === '') {
-        throw new Error("Received an empty preview from the API.");
+      throw new Error('Received an empty preview from the API.');
     }
     return text;
-
   } catch (error) {
-    console.error("Error calling Gemini API for component preview:", error);
+    console.error('Error calling Gemini API for component preview:', error);
     if (error instanceof Error) {
-        if (error.message.includes("API key not valid") || error.message.includes("invalid api key") || error.message.includes("API key is not valid")) {
-             throw new Error("Invalid or unauthorized Gemini API key. Please check your key and permissions.");
-        }
-         throw new Error(`Gemini API request for component preview failed: ${error.message}`);
+      if (
+        error.message.includes('API key not valid') ||
+        error.message.includes('invalid api key') ||
+        error.message.includes('API key is not valid')
+      ) {
+        throw new Error(
+          'Invalid or unauthorized Gemini API key. Please check your key and permissions.',
+        );
+      }
+      throw new Error(`Gemini API request for component preview failed: ${error.message}`);
     }
-    throw new Error("An unknown error occurred while communicating with the Gemini API for component preview.");
+    throw new Error(
+      'An unknown error occurred while communicating with the Gemini API for component preview.',
+    );
   }
 };
-
 
 export const generateCodeWithGemini = async (description: string): Promise<string> => {
   const currentAi = getAiInstance();
@@ -217,25 +240,32 @@ Generated Code:
 
   try {
     const response: GenerateContentResponse = await currentAi.models.generateContent({
-        model: MODEL_NAME_TEXT,
-        contents: prompt,
+      model: MODEL_NAME_TEXT,
+      contents: prompt,
     });
-    
+
     const text = response.text;
     if (!text || text.trim() === '') {
-        throw new Error("Received empty generated code from the API.");
+      throw new Error('Received empty generated code from the API.');
     }
     return text;
-
   } catch (error) {
-    console.error("Error calling Gemini API for code generation:", error);
+    console.error('Error calling Gemini API for code generation:', error);
     if (error instanceof Error) {
-        if (error.message.includes("API key not valid") || error.message.includes("invalid api key") || error.message.includes("API key is not valid")) {
-             throw new Error("Invalid or unauthorized Gemini API key. Please check your key and permissions.");
-        }
-         throw new Error(`Gemini API request for code generation failed: ${error.message}`);
+      if (
+        error.message.includes('API key not valid') ||
+        error.message.includes('invalid api key') ||
+        error.message.includes('API key is not valid')
+      ) {
+        throw new Error(
+          'Invalid or unauthorized Gemini API key. Please check your key and permissions.',
+        );
+      }
+      throw new Error(`Gemini API request for code generation failed: ${error.message}`);
     }
-    throw new Error("An unknown error occurred while communicating with the Gemini API for code generation.");
+    throw new Error(
+      'An unknown error occurred while communicating with the Gemini API for code generation.',
+    );
   }
 };
 
@@ -256,55 +286,72 @@ Generated Content:
 
   try {
     const response: GenerateContentResponse = await currentAi.models.generateContent({
-        model: MODEL_NAME_TEXT,
-        contents: prompt,
+      model: MODEL_NAME_TEXT,
+      contents: prompt,
     });
-    
+
     const text = response.text;
     if (!text || text.trim() === '') {
-        throw new Error("Received empty generated content from the API.");
+      throw new Error('Received empty generated content from the API.');
     }
     return text;
-
   } catch (error) {
-    console.error("Error calling Gemini API for content generation:", error);
+    console.error('Error calling Gemini API for content generation:', error);
     if (error instanceof Error) {
-        if (error.message.includes("API key not valid") || error.message.includes("invalid api key") || error.message.includes("API key is not valid")) {
-             throw new Error("Invalid or unauthorized Gemini API key. Please check your key and permissions.");
-        }
-         throw new Error(`Gemini API request for content generation failed: ${error.message}`);
+      if (
+        error.message.includes('API key not valid') ||
+        error.message.includes('invalid api key') ||
+        error.message.includes('API key is not valid')
+      ) {
+        throw new Error(
+          'Invalid or unauthorized Gemini API key. Please check your key and permissions.',
+        );
+      }
+      throw new Error(`Gemini API request for content generation failed: ${error.message}`);
     }
-    throw new Error("An unknown error occurred while communicating with the Gemini API for content generation.");
+    throw new Error(
+      'An unknown error occurred while communicating with the Gemini API for content generation.',
+    );
   }
 };
-
 
 export const generateImageWithImagen = async (prompt: string): Promise<string> => {
   const currentAi = getAiInstance();
   try {
     const response = await currentAi.models.generateImages({
-        model: MODEL_NAME_IMAGE,
-        prompt: prompt,
-        config: { numberOfImages: 1, outputMimeType: 'image/jpeg' },
+      model: MODEL_NAME_IMAGE,
+      prompt: prompt,
+      config: { numberOfImages: 1, outputMimeType: 'image/jpeg' },
     });
 
-    if (response.generatedImages && response.generatedImages.length > 0 && response.generatedImages[0].image?.imageBytes) {
-        return response.generatedImages[0].image.imageBytes;
+    if (
+      response.generatedImages &&
+      response.generatedImages.length > 0 &&
+      response.generatedImages[0].image?.imageBytes
+    ) {
+      return response.generatedImages[0].image.imageBytes;
     } else {
-        throw new Error("No image data received from the API or image generation failed.");
+      throw new Error('No image data received from the API or image generation failed.');
     }
   } catch (error) {
-    console.error("Error calling Imagen API for image generation:", error);
+    console.error('Error calling Imagen API for image generation:', error);
     if (error instanceof Error) {
-      if (error.message.includes("API key not valid") || error.message.includes("invalid api key") || error.message.includes("API key is not valid")) {
-        throw new Error("Invalid or unauthorized Gemini API key. Please check your key and permissions for Imagen.");
+      if (
+        error.message.includes('API key not valid') ||
+        error.message.includes('invalid api key') ||
+        error.message.includes('API key is not valid')
+      ) {
+        throw new Error(
+          'Invalid or unauthorized Gemini API key. Please check your key and permissions for Imagen.',
+        );
       }
       throw new Error(`Imagen API request for image generation failed: ${error.message}`);
     }
-    throw new Error("An unknown error occurred while communicating with the Imagen API for image generation.");
+    throw new Error(
+      'An unknown error occurred while communicating with the Imagen API for image generation.',
+    );
   }
 };
-
 
 // --- Chat Functions ---
 
@@ -319,26 +366,35 @@ export const startChatSession = async (systemInstruction: string): Promise<Chat>
     });
     return chatSession;
   } catch (error) {
-    console.error("Error starting chat session:", error);
+    console.error('Error starting chat session:', error);
     if (error instanceof Error) {
       throw new Error(`Failed to start chat session: ${error.message}`);
     }
-    throw new Error("An unknown error occurred while starting chat session.");
+    throw new Error('An unknown error occurred while starting chat session.');
   }
 };
 
-export const sendMessageToChatStream = async (chat: Chat, message: string): Promise<AsyncIterable<GenerateContentResponse>> => {
+export const sendMessageToChatStream = async (
+  chat: Chat,
+  message: string,
+): Promise<AsyncIterable<GenerateContentResponse>> => {
   try {
     const stream = await chat.sendMessageStream({ message });
     return stream;
   } catch (error) {
-    console.error("Error sending message to chat stream:", error);
+    console.error('Error sending message to chat stream:', error);
     if (error instanceof Error) {
-      if (error.message.includes("API key not valid") || error.message.includes("invalid api key") || error.message.includes("API key is not valid")) {
-        throw new Error("Invalid or unauthorized Gemini API key. Please check your key and permissions.");
+      if (
+        error.message.includes('API key not valid') ||
+        error.message.includes('invalid api key') ||
+        error.message.includes('API key is not valid')
+      ) {
+        throw new Error(
+          'Invalid or unauthorized Gemini API key. Please check your key and permissions.',
+        );
       }
       throw new Error(`Failed to send message via stream: ${error.message}`);
     }
-    throw new Error("An unknown error occurred while sending message to chat stream.");
+    throw new Error('An unknown error occurred while sending message to chat stream.');
   }
 };

@@ -23,7 +23,7 @@ interface RefactorStreamingPart {
   data?: string;
   message?: string;
   reason?: string;
-  safetyRatings?: any;
+  safetyRatings?: unknown;
 }
 
 const getAiInstance = (): GoogleGenAI => {

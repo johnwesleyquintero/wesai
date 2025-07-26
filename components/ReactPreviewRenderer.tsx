@@ -5,7 +5,7 @@ import React, { useState, useEffect, useId, ReactNode, ReactElement, ComponentTy
 declare global {
   interface Window {
     Babel: {
-      transform: (code: string, options: any) => { code: string | null };
+      transform: (code: string, options: unknown) => { code: string | null };
     };
   }
 }
@@ -172,7 +172,7 @@ export const ReactPreviewRenderer: React.FC<ReactPreviewRendererProps> = ({
         // Wrap the transpiled code in a try/catch block to catch errors during execution
         try {
           ${transpiledCode}
-        } catch (e) {
+        } catch (e: unknown) {
           console.error('Error executing transpiled preview code:', e);
           throw e; // Re-throw to be caught by the outer useEffect try/catch
         }
@@ -195,7 +195,7 @@ export const ReactPreviewRenderer: React.FC<ReactPreviewRendererProps> = ({
         );
         return {}; // Return an empty object for unsupported modules to prevent immediate crashes
       };
-      const exportsObj: { default?: any } = {}; // Object to capture exports from the evaluated code
+      const exportsObj: { default?: unknown } = {}; // Object to capture exports from the evaluated code
       const moduleObj = { exports: exportsObj }; // Mock module object for CommonJS compatibility
 
       // Execute the factory function with the mocked environment
@@ -210,7 +210,7 @@ export const ReactPreviewRenderer: React.FC<ReactPreviewRendererProps> = ({
         typeof CompCandidate === 'function' || // Function component
         (CompCandidate &&
           typeof CompCandidate === 'object' &&
-          typeof (CompCandidate as any).render === 'function') // Class component instance check (less common export but possible)
+          typeof (CompCandidate as { render?: () => React.ReactNode }).render === 'function') // Class component instance check (less common export but possible)
         // Note: Checking `CompCandidate.prototype.isReactComponent` is the standard for classes,
         // but the function check covers functional components. The current check is okay but not exhaustive.
       ) {
@@ -284,7 +284,7 @@ export const ReactPreviewRenderer: React.FC<ReactPreviewRendererProps> = ({
       // Attempt to stringify other types of errors
       try {
         message = `Unknown Error Type: ${JSON.stringify(caughtError)}`;
-      } catch (err) {
+      } catch {
         message = 'An unstringifiable unknown error occurred.';
       }
     }

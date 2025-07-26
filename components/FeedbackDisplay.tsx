@@ -7,11 +7,11 @@ interface FeedbackDisplayProps {
 }
 
 interface CustomCodeRendererProps {
-  node?: any;
+  node?: unknown;
   inline?: boolean;
   className?: string;
   children: React.ReactNode;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({ feedback }) => {
@@ -91,7 +91,7 @@ export const FeedbackDisplay: React.FC<FeedbackDisplayProps> = ({ feedback }) =>
           remarkPlugins={[remarkGfm]}
           components={
             {
-              code: ({ node, inline, className, children, ...rest }: CustomCodeRendererProps) => {
+              code: ({ inline, className, children, ...rest }: CustomCodeRendererProps) => {
                 if (!inline) {
                   return (
                     <code className={`${className || ''} break-words`} {...rest}>

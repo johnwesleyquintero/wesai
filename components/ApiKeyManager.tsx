@@ -37,7 +37,7 @@ export const ApiKeyManager: React.FC<ApiKeyManagerProps> = ({
     }
     // Default expansion state based on key presence
     setIsExpanded(!isKeySet);
-  }, [isKeySet, currentKeySource]);
+  }, [isKeySet, currentKeySource, isExpanded]);
 
   const handleSave = () => {
     if (apiKeyInput.trim()) {

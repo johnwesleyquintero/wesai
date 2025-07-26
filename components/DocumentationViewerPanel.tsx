@@ -37,8 +37,9 @@ export const DocumentationViewerPanel: React.FC = () => {
     fetchDocumentation();
   }, [fetchDocumentation]);
 
+  // The pre component from markdown-to-jsx doesn't use the hast Element type
   const markdownComponents: Components = {
-    // @ts-ignore due to mismatch in react-markdown types for node
+    // @ts-expect-error - Type mismatch between markdown-to-jsx and PreWithCopyButton props
     pre: PreWithCopyButton,
   };
 

@@ -62,14 +62,14 @@ export const CodeInteractionPanel: React.FC<CodeInteractionPanelProps> = ({
     }
   }, [feedback, activeTab]);
 
-  const getActionVerb = (): string => {
+  const getActionVerb = React.useCallback((): string => {
     if (activeTab === 'review') return 'review';
     if (activeTab === 'refactor') return 'refactor';
     if (activeTab === 'preview') return 'get a preview for';
     if (activeTab === 'generate') return 'generate code based on';
     if (activeTab === 'content') return 'create';
     return 'process';
-  };
+  }, [activeTab]);
 
   const getButtonText = (): string => {
     if (isLoading) {

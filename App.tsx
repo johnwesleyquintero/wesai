@@ -231,7 +231,7 @@ const App: React.FC = () => {
         const result = await reviewCodeWithGemini(code);
         setFeedback(result);
       } else if (activeTab === 'refactor') {
-        let fullRefactorText = `## Refactoring Summary:\n\n`;
+        const fullRefactorText = `## Refactoring Summary:\n\n`;
         setFeedback(fullRefactorText);
         for await (const part of refactorCodeWithGeminiStream(code)) {
           if (part.type === 'chunk' && part.data) {

@@ -11,6 +11,7 @@ const __dirname = path.dirname(__filename);
 
 const compat = new FlatCompat({
   baseDirectory: __dirname,
+  resolvePluginsRelativeTo: __dirname, // Add this line
 });
 import pluginReactHooks from 'eslint-plugin-react-hooks';
 import pluginReactRefresh from 'eslint-plugin-react-refresh';
@@ -29,8 +30,8 @@ export default tseslint.config({
   extends: [
     pluginJs.configs.recommended,
     ...tseslint.configs.recommended,
-    ...compat.extends(pluginReact.configs.recommended),
-    pluginReactHooks.configs.recommended,
+    ...compat.extends('plugin:react/recommended'), // Use string path for compat.extends
+    ...compat.extends('plugin:react-hooks/recommended'), // Use string path for compat.extends
   ],
   languageOptions: {
     parser: tseslint.parser,

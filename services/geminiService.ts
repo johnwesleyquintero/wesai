@@ -1,7 +1,7 @@
 import { GoogleGenAI, GenerateContentResponse, Chat } from '@google/genai';
 
 let ai: GoogleGenAI | null = null;
-const MODEL_NAME_TEXT = 'gemini-2.5-flash-preview-04-17';
+const MODEL_NAME_TEXT = 'gemini-2.5-flash';
 const MODEL_NAME_IMAGE = 'imagen-3.0-generate-002';
 
 export const initializeGeminiClient = (apiKey: string): void => {
